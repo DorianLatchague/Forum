@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Index";
+}     
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle=confirmation]').confirmation({rootSelector: '[data-toggle=confirmation]',
+            // other options
+            });
+        });
+    </script>
+}
+@model Categories
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand">Login App</a>
+        <ul class="navbar-nav mr-auto">
+            <a class="nav-link" style="color: black; font-weight: bold;">Dashboard</a>
+            <a class="nav-link" style="color: black;" href="/forum/edit/@ViewBag.UserName">Profile</a>
+        </ul>
+        <a href="/logout" style="color: black;" class="nav-item active nav-link my-2 my-lg-0">Log Out</a>
+    </nav>
+    <p style="color:green; text-align: center; margin-top: 20px;">@TempData["login"]</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category Name</th>
+                <th>Number of Topics</th>
+                <th>Moderators</th>
+                @if(@ViewBag.Role == true)
+                {
+                <th>Options</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(Categories category in @ViewBag.Categories)
+            {
+                <tr>
+                    <td><a href="/forum/category/@category.Name">@category.Name</a></td>
+                    <td>@category.Topics.Count()</td>
+                    <td>
+                        @foreach(var moderator in @category.Moderators)
+                        {
+                            <span>@moderator.User.FirstName,</span>
+                        }
+                    </td>
+                    @if(@ViewBag.Role == true)
+                    {
+                    <td><a class="btn btn-outline-danger" data-toggle="confirmation" data-btn-ok-label="Continue" data-btn-ok-class="btn-outline-success" data-btn-cancel-label="Cancel" data-btn-cancel-class="btn-outline-danger" data-title="Are you sure?" data-content="Pressing 'Continue' will delete @category.Name from the database." href="/forum/category/@category.CategoriesId/delete">Delete</a></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if(@ViewBag.Role == true)
+    {
+    <h3>Add a Category</h3>
+    <form asp-action="CreateCategory" asp-controller="Forum" method="post">
+        <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Category Name:</span>
+                </div>
+                <input asp-for="Name" type="text" class="form-control" placeholder="Enter Category Name Here">
+            </div>
+            <span style="color: red" asp-validation-for="Name"></span>
+            <button class="btn btn-outline-success" style="float:right;">Create</button>
+    </form>
+    }
+</div>
